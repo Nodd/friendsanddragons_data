@@ -5,6 +5,7 @@ from pprint import pprint
 from requests_html import AsyncHTMLSession
 import asyncio
 import re
+import json
 
 BASE_URL = "https://friends-and-dragons.fandom.com"
 
@@ -31,6 +32,7 @@ async def parse_hero(session, name, wiki_link):
     # page = urlopen(url)
     # html = page.read().decode("utf-8")
     response = await session.get(url)
+    print("Parsing", name, "...")
     html = response.html.raw_html
 
     soup = BeautifulSoup(html, "html.parser")
@@ -124,7 +126,7 @@ async def get_data():
     print(len(heroes), "heroes found")
 
     # Take only 2 heroes for testing
-    heroes = dict(list(heroes.items())[:2])
+    # heroes = dict(list(heroes.items())[:2])
 
     session = AsyncHTMLSession()
     tasks = [parse_hero(session, name, wiki_link) for name, wiki_link in heroes.items()]
@@ -134,7 +136,8 @@ async def get_data():
 def main():
     data = asyncio.run(get_data())
     pprint(data)
-    return data
+    with open("heroes.json", "w") as f:
+        json.dump(data, f)
 
 
 if __name__ == "__main__":
